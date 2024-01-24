@@ -1,3 +1,4 @@
+import time
 import torch
 import gradio as gr
 
@@ -40,11 +41,11 @@ tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME  ,cache_dir='./models/' , l
 tokenizer.pad_token = tokenizer.eos_token
 
 model = AutoModelForCausalLM.from_pretrained(
-    MODEL_NAME, torch_dtype=torch.float16,
-    trust_remote_code=True,
-    device_map="auto",
+    MODEL_NAME, 
+    # load_in_4bit=True,
+   
     quantization_config=quantization_config,
-        load_in_8bit=False,
+        # load_in_8bit=False,
 
 )
 # device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -52,11 +53,14 @@ model = AutoModelForCausalLM.from_pretrained(
 # model = model.to(device)
 
 generation_config = GenerationConfig.from_pretrained(MODEL_NAME)
-generation_config.max_new_tokens = 1024
-generation_config.temperature = 0.0001
+generation_config.max_new_tokens = 500
+generation_config.temperature = 0.8
+
 generation_config.top_p = 0.95
+generation_config.top_k = 40
+
 generation_config.do_sample = True
-generation_config.repetition_penalty = 1.15
+generation_config.repetition_penalty = 1.1
 
 pipeline = pipeline(
     "text-generation",
@@ -70,12 +74,16 @@ pipeline = pipeline(
 llm = HuggingFacePipeline(
     pipeline=pipeline,
     )
-query = "Explain the difference between ChatGPT and open source LLMs in a couple of lines."
-result = llm(
-    query
-)
 
-display(Markdown(f"<b>{query}</b>"))
-display(Markdown(f"<p>{result}</p>"))
+# while True:
+#     time.sleep(60)
+# query = "Explain the difference between ChatGPT and open source LLMs in a couple of lines."
+# result = llm(
+#     query
+# )
+
+# display(Markdown(f"<b>{query}</b>"))
+# display(Markdown(f"<p>{result}</p>"))
+# print(result)
 
 
